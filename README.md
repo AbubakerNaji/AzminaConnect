@@ -85,3 +85,8 @@ All text content uses `data-en` and `data-ar` attributes for bilingual support. 
 
 This project is created for Prime Era IT Company.
 
+## Contact
+
+- Phone: 0945401617
+- Location: Gargaresh Road, Tripoli, Libya
+

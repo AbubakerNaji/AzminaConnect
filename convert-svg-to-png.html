@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG to PNG Converter - Prime Era Logo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(26, 26, 26, 0.95);
+            padding: 40px;
+            border-radius: 12px;
+            border: 1px solid #00ffff;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+        }
+        h1 {
+            color: #00ffff;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+        .subtitle {
+            color: #c0c0c0;
+            margin-bottom: 30px;
+        }
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        button {
+            background: linear-gradient(135deg, #00ffff, #00cccc);
+            color: #000;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 255, 255, 0.3);
+        }
+        button:hover {
+            background: linear-gradient(135deg, #33ffff, #00ffff);
+            box-shadow: 0 6px 20px rgba(0, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .preview-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #0a0a0a;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 255, 255, 0.2);
+        }
+        .preview-section h3 {
+            color: #00ffff;
+            margin-bottom: 15px;
+        }
+        canvas {
+            border: 2px solid #00ffff;
+            background: #000;
+            border-radius: 4px;
+            max-width: 100%;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+        }
+        .info {
+            background: rgba(0, 255, 255, 0.1);
+            border-left: 4px solid #00ffff;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        .info p {
+            margin: 5px 0;
+            color: #c0c0c0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 SVG to PNG Converter</h1>
+        <p class="subtitle">Convert Prime Era logo files from SVG to PNG format</p>
+        
+        <div class="button-group">
+            <button onclick="convertSVG('logo.svg', 'logo.png', 200, 200)">📐 Icon Only (200×200)</button>
+            <button onclick="convertSVG('logo-text.svg', 'logo-text.png', 400, 120)">📝 Text Only (400×120)</button>
+            <button onclick="convertSVG('logo-complete.svg', 'logo-complete.png', 500, 200)">✨ Complete Logo (500×200)</button>
+        </div>
+        
+        <div class="info">
+            <p><strong>Instructions:</strong></p>
+            <p>1. Click any button above to convert the corresponding SVG file</p>
+            <p>2. The PNG file will automatically download to your computer</p>
+            <p>3. A preview will appear below</p>
+            <p><strong>Note:</strong> Make sure all SVG files are in the same directory as this HTML file</p>
+        </div>
+        
+        <div class="preview-section" id="preview" style="display: none;">
+            <h3 id="preview-title"></h3>
+            <canvas id="preview-canvas"></canvas>
+        </div>
+    </div>
+
+    <script>
+        function convertSVG(svgFile, pngFile, width, height) {
+            // Create an image element
+            const img = new Image();
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas dimensions
+            canvas.width = width;
+            canvas.height = height;
+            
+            // Handle image load
+            img.onload = function() {
+                try {
+                    // Fill with black background
+                    ctx.fillStyle = '#000000';
+                    ctx.fillRect(0, 0, width, height);
+                    
+                    // Draw the SVG image
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // Convert canvas to blob and download
+                    canvas.toBlob(function(blob) {
+                        if (!blob) {
+                            alert('Error: Could not create PNG file');
+                            return;
+                        }
+                        
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = pngFile;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                        
+                        // Show preview
+                        showPreview(pngFile, canvas, width, height);
+                        
+                        console.log(`✓ Successfully converted ${svgFile} → ${pngFile}`);
+                    }, 'image/png', 1.0);
+                } catch (error) {
+                    console.error('Error during conversion:', error);
+                    alert('Error converting file. Please check the console for details.');
+                }
+            };
+            
+            // Handle image load errors
+            img.onerror = function() {
+                alert(`Error: Could not load ${svgFile}.\n\nMake sure:\n1. The file exists in the same directory\n2. You're opening this HTML file from a local server (not file://)\n3. Or use a local web server like: python3 -m http.server`);
+                console.error(`Failed to load: ${svgFile}`);
+            };
+            
+            // Set crossOrigin to allow loading local files (may not work in all browsers)
+            img.crossOrigin = 'anonymous';
+            
+            // Load the SVG file
+            img.src = svgFile;
+        }
+        
+        function showPreview(filename, sourceCanvas, width, height) {
+            const previewSection = document.getElementById('preview');
+            const previewTitle = document.getElementById('preview-title');
+            const previewCanvas = document.getElementById('preview-canvas');
+            
+            previewTitle.textContent = `Preview: ${filename} (${width}×${height}px)`;
+            previewCanvas.width = width;
+            previewCanvas.height = height;
+            
+            const previewCtx = previewCanvas.getContext('2d');
+            previewCtx.drawImage(sourceCanvas, 0, 0);
+            
+            previewSection.style.display = 'block';
+        }
+        
+        // Check if files exist (informational)
+        window.addEventListener('load', function() {
+            const files = ['logo.svg', 'logo-text.svg', 'logo-complete.svg'];
+            files.forEach(file => {
+                fetch(file, { method: 'HEAD' })
+                    .then(() => console.log(`✓ Found: ${file}`))
+                    .catch(() => console.warn(`✗ Not found: ${file}`));
+            });
+        });
+    </script>
+</body>
+</html>
